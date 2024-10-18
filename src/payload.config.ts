@@ -1,39 +1,37 @@
+import dotenv from 'dotenv'
 import { webpackBundler } from "@payloadcms/bundler-webpack"
 import { mongooseAdapter } from "@payloadcms/db-mongodb"
 import { slateEditor } from "@payloadcms/richtext-slate"
 import path from "path"
-import { buildConfig } from "payload/config"
-import dotenv from 'dotenv'
 
 dotenv.config({
-    path: path.resolve(__dirname, '../.env'),
+    path: path.resolve(__dirname, '../.env.local'),
   })
 
+import { buildConfig } from "payload/config"
+
+
 export default buildConfig({
-    serverURL: process.env.NEXT_PUBLIC_URL || '',
+    serverURL: process.env.NEXT_PUBLIC_SERVER_URL || '',
     collections: [],
     routes: {
-        admin: '/Post'
+        admin: '/post'
     },
     admin: {
-        user: "users",
         bundler: webpackBundler(),
         meta: {
-            titleSuffix: "-Letsema MarketPlace",
+            titleSuffix: '- Letsema MarketPlace',
             favicon: '/favicon.ico',
-            ogImage: '/thumbnail.jpg'
-        },
-    },
-    rateLimit: {
-        max: 1500,
+            ogImage: '/thumbnail.jpg',
+          },        
     },    
-
     editor: slateEditor({}),
     db: mongooseAdapter({
-        url:process.env.MONGODB_URL!,
+        url: process.env.MONGODB_URI!,
     }),
+    rateLimit: {max: 1500},
     typescript: {
         outputFile: path.resolve(__dirname,'payload-types.ts')
     },
+   
 })
-

@@ -3,11 +3,11 @@ import path from 'path'
 import type { Payload } from 'payload'
 import payload from 'payload'
 import type { InitOptions } from 'payload/config'
-
+import {seed as seedData} from './seed'
 
 
 dotenv.config({
-  path: path.resolve(__dirname, '../.env'),
+  path: path.resolve(__dirname, '../.env.local'),
 })
 
 let cached = (global as any).payload
@@ -22,6 +22,9 @@ interface Args {
 }
 
 export const getPayloadClient = async ({ initOptions, seed }: Args = {}): Promise<Payload> => {
+  if(!process.env.MONGODB_URI){
+    throw new Error('DATABASE_URI enviroment variable is missing')
+  }
   if (!process.env.PAYLOAD_SECRET) {
     throw new Error('PAYLOAD_SECRET environment variable is missing')
   }
@@ -34,13 +37,18 @@ export const getPayloadClient = async ({ initOptions, seed }: Args = {}): Promis
     cached.promise = payload.init({
       secret: process.env.PAYLOAD_SECRET,
       local: initOptions?.express ? false : true,
-      ...cached(initOptions || {}),
+      ...(initOptions || {}),
     })
   }
 
   try {
     process.env.PAYLOAD_DROP_DATABASE = seed ? 'true' : 'false'
     cached.client = await cached.promise
+
+    if(seed) {
+      payload.logger.info('--- - SEEDING DATABASE --- -')
+      await seedData(payload)
+    }
     } 
     catch (e: unknown) {
     cached.promise = null
