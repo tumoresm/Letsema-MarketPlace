@@ -21,7 +21,10 @@ interface Args {
   seed?: boolean
 }
 
-export const getPayloadClient = async ({ initOptions, seed }: Args = {}): Promise<Payload> => {
+export const getPayloadClient = async ({ 
+  initOptions, 
+  seed,
+ }: Args = {}): Promise<Payload> => {
   if(!process.env.MONGODB_URI){
     throw new Error('DATABASE_URI enviroment variable is missing')
   }

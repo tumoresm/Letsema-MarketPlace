@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { AuthCredentialsValidator, TAuthCredentialsValidator } from '@/lib/validators/account-credentials-validator'
 import { trpc } from '@/trpc/client'
+import { useRouter } from 'next/router'
 
 const Page =  () => {    
 
@@ -22,14 +23,19 @@ const Page =  () => {
         resolver: zodResolver(AuthCredentialsValidator),
     })
 
-    const { data } = trpc.anyApiRoute.useQuery()
-    console.log(data)
+    const router = useRouter()
+
+    const {mutate, isLoading} = trpc.auth.createPayloadUser.useMutation({
+
+    })
+    
 
     const onSubmit = ({
         email, 
         password,
     }: TAuthCredentialsValidator) => {
         //send data to the serrver
+        mutate({email, password})
         
 
     }
@@ -83,6 +89,7 @@ const Page =  () => {
                                 <Label htmlFor='password'>Password</Label>
                                 <Input 
                                 {...register('password')}
+                                type='password'
                                 className={cn({
                                     "focus-visible:ring-red-500" : 
                                     errors.password,
